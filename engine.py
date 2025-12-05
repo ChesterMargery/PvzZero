@@ -521,8 +521,13 @@ class PvZSim:
     def _update_zomboni(self, zombie: Zombie) -> None:
         """Update Zomboni (Ice Resurfacing Car) state machine."""
         if zombie.mState == ZombieState.DRIVING:
-            # Zombonis don't get slowed by chill/freeze as much
-            speed = zombie.mSpeed * (1.0 if zombie.mStatus.is_frozen else 1.0)
+            # Zombonis resist freeze effects but still get slowed somewhat
+            if zombie.mStatus.is_frozen:
+                speed = zombie.mSpeed * 0.5  # Reduced effect on vehicles
+            elif zombie.mStatus.is_chilled:
+                speed = zombie.mSpeed * 0.75  # Reduced effect on vehicles
+            else:
+                speed = zombie.mSpeed
             zombie.move(-speed)
             
             # Zomboni crushes plants (handled in collision)

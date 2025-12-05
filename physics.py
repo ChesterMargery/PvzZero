@@ -158,8 +158,7 @@ class ProjectileManager:
         
         # Remove inactive projectiles (reverse order to preserve indices)
         for i in sorted(to_remove, reverse=True):
-            if i < len(self.projectiles):
-                self.projectiles.pop(i)
+            self.projectiles.pop(i)
         
         return hits
     
