@@ -156,53 +156,7 @@ class VecPvZEnv:
         return np.array([env._episode_steps for env in self.envs])
 
 
-class SubprocVecEnv:
-    """
-    Vectorized environment using multiprocessing for true parallelism.
-    
-    Note: For PvZSim, the single-process VecPvZEnv is often faster due to
-    the simulator being pure Python and the overhead of multiprocessing.
-    This is provided for experimentation.
-    """
-    
-    def __init__(
-        self,
-        num_envs: int = 64,
-        seed: Optional[int] = None,
-        target_waves: int = 20,
-        max_steps: int = 100000,
-    ):
-        """
-        Initialize subprocess-based vectorized environment.
-        
-        Note: This uses single-process implementation as PvZSim is already
-        highly optimized and multiprocessing overhead may reduce performance.
-        """
-        # For now, delegate to single-process version
-        # Can be extended with actual multiprocessing if needed
-        self._vec_env = VecPvZEnv(
-            num_envs=num_envs,
-            seed=seed,
-            target_waves=target_waves,
-            max_steps=max_steps,
-        )
-        
-        self.num_envs = num_envs
-        self.observation_space = self._vec_env.observation_space
-        self.action_space = self._vec_env.action_space
-    
-    def reset(
-        self, seed: Optional[int] = None
-    ) -> Tuple[Dict[str, np.ndarray], List[Dict[str, Any]]]:
-        """Reset all environments."""
-        return self._vec_env.reset(seed=seed)
-    
-    def step(
-        self, actions: np.ndarray
-    ) -> Tuple[Dict[str, np.ndarray], np.ndarray, np.ndarray, np.ndarray, List[Dict[str, Any]]]:
-        """Step all environments."""
-        return self._vec_env.step(actions)
-    
-    def close(self):
-        """Close all environments."""
-        self._vec_env.close()
+# Note: For true multiprocessing support, consider using stable_baselines3.SubprocVecEnv
+# For PvZSim, single-process VecPvZEnv is often faster due to the simulator being
+# pure Python and the GIL. Multiprocessing overhead typically reduces performance
+# compared to the vectorized single-process implementation above.

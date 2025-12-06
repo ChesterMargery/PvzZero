@@ -40,17 +40,21 @@ def evaluate(args):
     print(f"Deterministic: {args.deterministic}")
     print("=" * 60)
     
+    # Create environment to get action space size
+    temp_env = PvZEnv(seed=args.seed, target_waves=args.target_waves)
+    num_actions = temp_env.action_space.n
+    
     # Load model
     print("\nLoading model...")
-    model = PvZActorCritic(num_actions=379).to(args.device)
+    model = PvZActorCritic(num_actions=num_actions).to(args.device)
     checkpoint = torch.load(args.checkpoint, map_location=args.device)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     
     print(f"Loaded checkpoint from step {checkpoint['global_step']}")
     
-    # Create environment
-    env = PvZEnv(seed=args.seed, target_waves=args.target_waves)
+    # Use the temporary environment for evaluation
+    env = temp_env
     
     # Run episodes
     episode_rewards = []

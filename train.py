@@ -95,7 +95,9 @@ class PPOTrainer:
         
         # Create model
         print("Initializing model...")
-        self.model = PvZActorCritic(num_actions=379).to(args.device)
+        # Get num_actions from environment
+        num_actions = self.envs.action_space.n
+        self.model = PvZActorCritic(num_actions=num_actions).to(args.device)
         self.optimizer = optim.Adam(self.model.parameters(), lr=args.learning_rate)
         
         # Create memory buffer

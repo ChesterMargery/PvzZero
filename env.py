@@ -9,7 +9,7 @@ from gymnasium import spaces
 from typing import Optional, Tuple, Dict, Any
 
 from engine import PvZSim
-from consts import PlantType, NUM_ROWS, NUM_COLS
+from consts import PlantType, NUM_ROWS, NUM_COLS, GRID_OFFSET_X, CELL_WIDTH
 
 
 class PvZEnv(gym.Env):
@@ -97,9 +97,10 @@ class PvZEnv(gym.Env):
             PlantType.CHERRY_BOMB,     # Instant clear
         ]
         
-        # Action: 0 for no-op, then plant_type_idx * 54 + row * 9 + col + 1
+        # Action: 0 for no-op, then plant_type_idx * (NUM_ROWS*NUM_COLS) + row * NUM_COLS + col + 1
         num_plant_actions = len(self.plant_types) * NUM_ROWS * NUM_COLS
-        self.action_space = spaces.Discrete(num_plant_actions + 1)
+        self.num_actions = num_plant_actions + 1  # +1 for no-op
+        self.action_space = spaces.Discrete(self.num_actions)
         
     def _get_obs(self) -> Dict[str, np.ndarray]:
         """
@@ -119,7 +120,7 @@ class PvZEnv(gym.Env):
         for zombie in self.sim.zombies:
             if zombie.is_alive():
                 # Convert zombie x position to column
-                col = int((zombie.mX - 40) / 80)  # GRID_OFFSET_X=40, CELL_WIDTH=80
+                col = int((zombie.mX - GRID_OFFSET_X) / CELL_WIDTH)
                 col = max(0, min(NUM_COLS - 1, col))
                 row = zombie.mRow
                 # Normalize HP (max ~6000 for Giga-Garg)
