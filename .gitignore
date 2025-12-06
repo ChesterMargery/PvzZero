@@ -67,3 +67,7 @@ venv.bak/
 # OS
 .DS_Store
 Thumbs.db
+
+# RL Training
+checkpoints/
+*.log

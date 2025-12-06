@@ -1,0 +1,71 @@
+name: Train PvZ RL Agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      num_envs:
+        description: 'Number of parallel environments'
+        required: false
+        default: '128'
+        type: string
+      total_timesteps:
+        description: 'Total timesteps to train'
+        required: false
+        default: '10000000'
+        type: string
+      target_waves:
+        description: 'Target waves to survive'
+        required: false
+        default: '20'
+        type: string
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180  # 3 hour timeout
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run training
+      run: |
+        python train.py \
+          --num-envs ${{ github.event.inputs.num_envs || '128' }} \
+          --total-timesteps ${{ github.event.inputs.total_timesteps || '10000000' }} \
+          --target-waves ${{ github.event.inputs.target_waves || '20' }} \
+          --log-interval 5 \
+          --save-interval 50 \
+          --checkpoint-dir checkpoints \
+          --seed 42
+    
+    - name: Upload trained model
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: trained-model
+        path: checkpoints/
+        retention-days: 90
+    
+    - name: Upload training logs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: training-logs
+        path: |
+          *.log
+          checkpoints/*.pt
+        retention-days: 30
