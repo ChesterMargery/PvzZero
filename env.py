@@ -59,7 +59,7 @@ class PvZEnv(gym.Env):
         self._episode_steps = 0
         
         # Track previous state for reward calculation
-        self._prev_zombies_killed = 0
+        self._prev_zombies_alive = 0
         self._prev_sun = 50
         
         # Define observation space
@@ -158,11 +158,11 @@ class PvZEnv(gym.Env):
         reward += 1.0
         
         # Zombie kill reward
-        current_zombies = len([z for z in self.sim.zombies if z.is_alive()])
-        zombies_killed = self._prev_zombies_killed - current_zombies
+        current_zombies_alive = len([z for z in self.sim.zombies if z.is_alive()])
+        zombies_killed = self._prev_zombies_alive - current_zombies_alive
         if zombies_killed > 0:
             reward += 50.0 * zombies_killed
-        self._prev_zombies_killed = current_zombies
+        self._prev_zombies_alive = current_zombies_alive
         
         # Sun collection reward (encourage economy)
         sun_gained = self.sim.sun - self._prev_sun
@@ -203,7 +203,7 @@ class PvZEnv(gym.Env):
         
         self.sim.reset(seed=seed)
         self._episode_steps = 0
-        self._prev_zombies_killed = 0
+        self._prev_zombies_alive = 0
         self._prev_sun = 50
         
         obs = self._get_obs()

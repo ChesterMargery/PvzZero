@@ -107,6 +107,10 @@ class VecPvZEnv:
                 obs, info = env.reset()
                 obs_list.append(obs)
                 info_list.append(info)
+                # On reset, no reward/done signals for this step
+                rewards[i] = 0.0
+                terminated[i] = False
+                truncated[i] = False
                 self._needs_reset[i] = False
             else:
                 obs, reward, term, trunc, info = env.step(action)

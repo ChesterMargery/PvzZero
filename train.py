@@ -105,6 +105,7 @@ class PPOTrainer:
         self.global_step = 0
         self.num_updates = 0
         self.start_time = time.time()
+        self.current_obs = None
         
         # Statistics
         self.episode_rewards = []
